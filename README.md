@@ -19,7 +19,7 @@ url = {https://doi.org/10.7910/DVN/QXUVIG}
 
 # Code
 
-The currently available scraping script is `scrape_20180304.py`. It can be easily applied to scrape different elections but it must be 
+The currently available scraping script is `scrape_20180304.py`. It can be easily applied to scrape different elections but it must be edited and tested. 
 
 
 # Data
