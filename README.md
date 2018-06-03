@@ -24,6 +24,6 @@ The currently available scraping script is `scrape_20180304.py`. It can be easil
 
 # Data
 
-## General elections 4 March 2018 (Chamber of Deputy and Senate of the Republic)
+* [General elections 4 March 2018 (Chamber of Deputy and Senate of the Republic)](open_details_20180304.md)
 
 
