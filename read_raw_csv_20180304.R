@@ -1,7 +1,7 @@
-setwd('/Users/francesco/public_git/ScrapeOpen/elezionistorico.interno.gov.it')
+setwd('ScrapeOpen/elezionistorico.interno.gov.it') # Change this!
 options(warn=2) # Warnings into errors!
 
-dir <- "/Users/francesco/Desktop/projects/scrape_archivio_elezioni/raw_csv_20180304/" # Change this
+dir <- "raw_csv_20180304/" # Change this
 files <- list.files(dir)
 
 # Check files
@@ -25,8 +25,8 @@ files_senato_scrutini[!files_senato_scrutini %in% files_senato_liste]
 
 # 
 library(rgdal)
-camera_sp = readOGR('/Users/francesco/public_git/ScrapeOpen/elezionistorico.interno.gov.it', layer = 'open_shp_20180304_camera') # Change this
-senato_sp = readOGR('/Users/francesco/public_git/ScrapeOpen/elezionistorico.interno.gov.it', layer = 'open_shp_20180304_senato') # Change this
+camera_sp = readOGR('ScrapeOpen/elezionistorico.interno.gov.it', layer = 'open_shp_20180304_camera') # Change this
+senato_sp = readOGR('ScrapeOpen/elezionistorico.interno.gov.it', layer = 'open_shp_20180304_senato') # Change this
 camera_sp@data$cu2017_lab <- str_trim(toupper(camera_sp@data$cu2017_lab))
 senato_sp@data$su2017_lab <- str_trim(toupper(senato_sp@data$su2017_lab))
 
