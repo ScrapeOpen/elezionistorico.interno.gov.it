@@ -6,7 +6,7 @@ output:
   rmarkdown::github_document
 ---
 
-The details on variables and decriptive statistics on the results of the 2018 elections. For both the Chamber and the Senate (formally two different elections with different electorates), voters had the options of either voting a *party* or the coaltion's *candidate* either in the case of monocoalitions (i.e. one-party coalition). Consequentially, for each coalition the votes received by a candidate must equal or be greater than the sum of votes received by the parties in the coalition. 
+The details on variables and decriptive statistics on the results of the 2018 elections. For both the Chamber and the Senate (formally two different elections with different electorates), voters had the option of either voting a *party* or the coaltion's *candidate* either in the case of monocoalitions (i.e. one-party coalition). Consequentially, for each coalition the votes received by a candidate must equal or be greater than the sum of votes received by the parties in the coalition. 
 
 # Count datasets
 
