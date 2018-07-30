@@ -1,0 +1,68 @@
+---
+title: "Italian institutional referendum 2 June 1946"
+author: "Francesco Bailo"
+date: "30 July 2018"
+output: 
+  rmarkdown::github_document
+---
+
+The details on variables and decriptive statistics on the results of the 1946 institutional referendum at the provincial level. The referendum was not organised in the provinces of Trieste and Bolzano-Bozen. 
+
+# Dataset
+
+* `open_csv_19460602_F.csv`
+
+```{r, include=F}
+setwd('ScrapeOpen/elezionistorico.interno.gov.it')
+open_csv_19460602_F <- read.csv('open_csv_19460602_F.csv')
+```
+
+## Variable description
+
+### Character variables
+* `type` is `SCRUTINI`.
+* `election` is `Referendum`.
+* `date` in format `%Y-%m-%d`.
+* `geo_lev_1` to `geo_lev_2` the label as set by the original data provider for the the electoral boundaries (from larger to smaller) of the geographical entity described by the observation.
+* `geo_entity` name of the geographical entity described by the observation as set by the original data provider.
+
+### Numerical variables
+* `republic_votes` the sum of votes in support of the Republic.
+* `monarchy_votes` the sum of votes in support of the Monarchy.
+* `registered_voters` the sum of voters registered for the election and entitled to vote in the geographical entity.
+* `blank_votes`
+* `invalid_votes` the sum of non-assigned votes (it includes `blank_votes`) in the geographical entity.
+
+### Variables linking to other resources
+* `istat_nam` is the name used by ISTAT in the geographic file `open_shp_20180304_camera`.
+
+## Variable summary
+
+### open_csv_19460602_F
+
+```{r, echo=FALSE,warning=FALSE,message=FALSE}
+library(knitr)
+library(dplyr)
+
+tb <- 
+with(open_csv_19460602_F,
+  data.frame(republic_votes = sum(republic_votes) ,
+            monarchy_votes = sum(monarchy_votes),
+            registered_voters = sum(registered_voters),
+            effective_voters = sum(effective_voters),
+            blank_votes = sum(blank_votes),
+            invalid_votes = sum(invalid_votes)))
+kable(tb, format.args = list(big.mark = ','), digits=2)
+
+tb <- 
+with(open_csv_19460602_F,
+  data.frame(republic_votes = (sum(republic_votes) / (sum(republic_votes) + sum(monarchy_votes)))*100,
+            monarchy_votes = (sum(monarchy_votes) / (sum(republic_votes) + sum(monarchy_votes))) *100,
+            registered_voters = NA,
+            effective_voters = (sum(effective_voters) / sum(registered_voters))*100,
+            blank_votes = (sum(blank_votes) / sum(effective_voters))*100,
+            invalid_votes = (sum(invalid_votes) / sum(effective_voters))*100))
+kable(tb, format.args = list(big.mark = ','), digits=2)
+
+```
+
