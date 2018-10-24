@@ -1,4 +1,4 @@
-\[Italian constitutional referendum 4 December 2016
+Italian constitutional referendum 4 December 2016
 ================
 Francesco Bailo
 24 October 2018
@@ -9,6 +9,14 @@ The details on variables and decriptive statistics on the results of the
 # Dataset
 
   - `open_csv_20161204_F.csv`
+    [download](https://doi.org/10.7910/DVN/QXUVIG/TDU3ME)
+
+## Comune without polling stations
+
+Because of the 2016 Central Italy earthquake, 4 comune did not open any
+polling station (Arquata del Tronto, Acquacanina, Castelsantangelo sul
+Nera, Ussita). Displaced residents from these comune voted in other
+comune.
 
 ## Variable description
 

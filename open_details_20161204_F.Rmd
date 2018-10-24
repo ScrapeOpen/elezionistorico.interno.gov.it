@@ -1,5 +1,5 @@
 ---
-title: "[Italian constitutional referendum 4 December 2016"
+title: "Italian constitutional referendum 4 December 2016"
 author: "Francesco Bailo"
 date: "24 October 2018"
 output: 
@@ -10,12 +10,18 @@ The details on variables and decriptive statistics on the results of the 2016 co
 
 # Dataset
 
-* `open_csv_20161204_F.csv`
+* `open_csv_20161204_F.csv` [download](https://doi.org/10.7910/DVN/QXUVIG/TDU3ME)
+
 
 ```{r, include=F}
 setwd('ScrapeOpen/elezionistorico.interno.gov.it')
 open_csv_20161204_F <- read.csv('open_csv_20161204_F.csv')
 ```
+
+## Comune without polling stations
+
+Because of the 2016 Central Italy earthquake, `r sum(open_csv_20161204_F$effective_voters == 0)` comune did not open any polling station (`r paste(open_csv_20161204_F$istat_nam[open_csv_20161204_F$effective_voters == 0], collapse = ", ")`). Displaced residents from these comune voted in other comune.
+
 
 ## Variable description
 
