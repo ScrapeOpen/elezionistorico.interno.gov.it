@@ -1,0 +1,71 @@
+---
+title: "[Italian constitutional referendum 4 December 2016"
+author: "Francesco Bailo"
+date: "24 October 2018"
+output: 
+  rmarkdown::github_document
+---
+
+The details on variables and decriptive statistics on the results of the 2016 constitutional referendum at the comune level.
+
+# Dataset
+
+* `open_csv_20161204_F.csv`
+
+```{r, include=F}
+setwd('ScrapeOpen/elezionistorico.interno.gov.it')
+open_csv_20161204_F <- read.csv('open_csv_20161204_F.csv')
+```
+
+## Variable description
+
+### Character variables
+* `type` is `SCRUTINI`.
+* `election` is `Referendum`.
+* `date` in format `%Y-%m-%d`.
+* `geo_lev_1` is `ITALIA` for all records.
+* `geo_lev_2` is the region name as set by the original data provider.
+* `geo_lev_3` is the province name as set by the original data provider (there are 106 provinces).
+* `geo_entity` name of the geographical entity described by the observation as set by the original data provider.
+
+### Numerical variables
+* `yes_votes` the sum of "yes" votes.
+* `no_votes` the sum of votes "no" votes.
+* `registered_voters` the sum of voters registered for the election and entitled to vote in the geographical entity.
+* `effective_voters` the sum of voters actually showing up to vote in the geographical entity.
+* `blank_votes`
+* `invalid_votes` the sum of non-assigned votes (it includes `blank_votes`) in the geographical entity.
+
+### Variables linking to other resources
+* `istat_cod` is the name used by ISTAT in the geographic file `open_shp_20161204_F`.
+
+## Variable summary
+
+### open_csv_20161204_F
+
+```{r, echo=FALSE,warning=FALSE,message=FALSE}
+library(knitr)
+library(dplyr)
+
+tb <- 
+  with(open_csv_20161204_F,
+       data.frame(yes_votes = sum(yes_votes) ,
+                  no_votes = sum(no_votes),
+                  registered_voters = sum(registered_voters),
+                  effective_voters = sum(effective_voters),
+                  blank_votes = sum(blank_votes),
+                  invalid_votes = sum(invalid_votes)))
+kable(tb, format.args = list(big.mark = ','), digits=2)
+
+tb <- 
+with(open_csv_20161204_F,
+  data.frame(yes_votes = (sum(yes_votes) / (sum(yes_votes) + sum(no_votes)))*100,
+            no_votes = (sum(no_votes) / (sum(yes_votes) + sum(no_votes))) *100,
+            registered_voters = NA,
+            effective_voters = (sum(effective_voters) / sum(registered_voters))*100,
+            blank_votes = (sum(blank_votes) / sum(effective_voters))*100,
+            invalid_votes = (sum(invalid_votes) / sum(effective_voters))*100))
+kable(tb, format.args = list(big.mark = ','), digits=2)
+
+```
+
