@@ -12,10 +12,12 @@ The details on variables and decriptive statistics on the results of the 2006 el
 
 Count data for geographic entitiy (municipal level or lower) is provided in the following files:
 
-* `open_csv_20060409_senato_geo_count.csv`;
-* `open_csv_20060409_camera_geo_count.csv`;
-* `open_csv_20060409_senato_party_count.csv`;
-* `open_csv_20060409_camera_party_count.csv`.
+* `open_csv_20060409_senato_geo_count.csv` ([download from Dataverse](https://dataverse.harvard.edu/file.xhtml?fileId=3348677)); 
+* `open_csv_20060409_camera_geo_count.csv` ([download from Dataverse](https://dataverse.harvard.edu/file.xhtml?fileId=3348678));
+* `open_csv_20060409_senato_party_count.csv` ([download from Dataverse](https://dataverse.harvard.edu/file.xhtml?fileId=3348675));
+* `open_csv_20060409_camera_party_count.csv` ([download from Dataverse](https://dataverse.harvard.edu/file.xhtml?fileId=3348674)).
+
+The raw tabular files are also available from [here]([link to Dataverse](https://dataverse.harvard.edu/file.xhtml?fileId=3348676)).
 
 
 ```{r, include=F}

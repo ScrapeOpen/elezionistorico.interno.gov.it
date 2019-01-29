@@ -13,10 +13,17 @@ different elections with different electorates).
 Count data for geographic entitiy (municipal level or lower) is provided
 in the following files:
 
-  - `open_csv_20060409_senato_geo_count.csv`;
-  - `open_csv_20060409_camera_geo_count.csv`;
-  - `open_csv_20060409_senato_party_count.csv`;
-  - `open_csv_20060409_camera_party_count.csv`.
+  - `open_csv_20060409_senato_geo_count.csv` ([download from
+    Dataverse](https://dataverse.harvard.edu/file.xhtml?fileId=3348677));
+  - `open_csv_20060409_camera_geo_count.csv` ([download from
+    Dataverse](https://dataverse.harvard.edu/file.xhtml?fileId=3348678));
+  - `open_csv_20060409_senato_party_count.csv` ([download from
+    Dataverse](https://dataverse.harvard.edu/file.xhtml?fileId=3348675));
+  - `open_csv_20060409_camera_party_count.csv` ([download from
+    Dataverse](https://dataverse.harvard.edu/file.xhtml?fileId=3348674)).
+
+The raw tabular files are also available from
+[here](%5Blink%20to%20Dataverse%5D\(https://dataverse.harvard.edu/file.xhtml?fileId=3348676\)).
 
 For each election, Chamber of Deputies (`camera`) and the Senate of the
 Republic (`senato`), 2 open datasets are provided:
