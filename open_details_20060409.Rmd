@@ -1,0 +1,130 @@
+---
+title: "General elections 9 April 2006 (Chamber of Deputy and Senate of the Republic)"
+author: "Francesco Bailo"
+date: "29 January 2019"
+output: 
+  rmarkdown::github_document
+---
+
+The details on variables and decriptive statistics on the results of the 2006 elections for both the Chamber and the Senate (formally two different elections with different electorates).
+
+# Count datasets
+
+Count data for geographic entitiy (municipal level or lower) is provided in the following files:
+
+* `open_csv_20060409_senato_geo_count.csv`;
+* `open_csv_20060409_camera_geo_count.csv`;
+* `open_csv_20060409_senato_party_count.csv`;
+* `open_csv_20060409_camera_party_count.csv`.
+
+
+```{r, include=F}
+setwd("~/public_git/ScrapeOpen/elezionistorico.interno.gov.it")
+camera_party_count <- read.csv('open_csv_20060409_camera_party_count.csv')
+camera_geo_count <- read.csv('open_csv_20060409_camera_geo_count.csv')
+
+senato_party_count <- read.csv('open_csv_20060409_senato_party_count.csv')
+senato_geo_count <- read.csv('open_csv_20060409_senato_geo_count.csv')
+```
+
+For each election, Chamber of Deputies (`camera`) and the Senate of the Republic (`senato`), 2 open datasets are provided: 
+
+* `party_count` with information on votes received by parties.
+* `geo_count` with general electoral count information on the geographic entity.  
+
+## Variable description
+
+### Character variables
+* `election` either `Senato` or `Camera`.
+* `date` in format `%Y-%m-%d`.
+* `geo_lev_1` to `geo_lev_2` the label as set by the original data provider for the the electoral boundaries (from larger to smaller) of the geographical entity described by the observation.
+* `geo_entity` name of the geographical entity described by the observation as set by the original data provider.
+
+### Numerical variables
+* `party_votes` the sum of votes received by a party in the geographical entity.
+* `candidate_votes` the sum of votes received by a candidate (that is, also by a coalition) in the geographical entity.
+* `registered_voters` the sum of voters registered for the election and entitled to vote in the geographical entity.
+* `blank_votes`
+* `invalid_votes` the sum ofnon-assigned votes (it includes `blank_votes`) in the geographical entity.
+
+## Variable summary
+
+### camera_party_count
+
+```{r, echo=FALSE,warning=FALSE,message=FALSE}
+library(knitr)
+library(dplyr)
+tb <- 
+  camera_party_count %>%
+  summarize(party_votes = sum(party_votes),
+            `%` = 100)
+kable(tb, format.args = list(big.mark = ','), digits=2)
+```
+
+```{r, echo=FALSE,warning=FALSE,message=FALSE}
+library(knitr)
+library(dplyr)
+tb <- 
+  camera_party_count %>%
+  group_by(party) %>%
+  summarize(party_votes = sum(party_votes),
+            `%` = sum(party_votes) / sum(camera_party_count$party_votes) * 100) %>%
+  arrange(-party_votes)
+kable(tb, format.args = list(big.mark = ','), digits=2)
+```
+
+### senato_party_count
+
+```{r, echo=FALSE,warning=FALSE,message=FALSE}
+library(knitr)
+library(dplyr)
+tb <- 
+  senato_party_count %>%
+  summarize(party_votes = sum(party_votes),
+            `%` = 100)
+kable(tb, format.args = list(big.mark = ','), digits=2)
+```
+
+```{r, echo=FALSE,warning=FALSE,message=FALSE}
+library(knitr)
+library(dplyr)
+tb <- 
+  senato_party_count %>%
+  group_by(party) %>%
+  summarize(party_votes = sum(party_votes),
+            `%` = sum(party_votes) / sum(senato_party_count$party_votes) * 100) %>%
+  arrange(-party_votes)
+kable(tb, format.args = list(big.mark = ','), digits=2)
+```
+
+### camera_geo_count
+
+```{r, echo=FALSE,warning=FALSE,message=FALSE}
+tb <-
+  camera_geo_count %>%
+  summarize(registered_voters = sum(registered_voters),
+            effective_voters = sum(effective_voters),
+            `% (effective)` = sum(camera_geo_count$effective_voters) / sum(camera_geo_count$registered_voters) * 100,
+            blank_votes = sum(blank_votes),
+            invalid_votes = sum(invalid_votes), 
+            `% (invalid)` = sum(camera_geo_count$invalid_votes) / sum(camera_geo_count$effective_voters) * 100)
+kable(tb, format.args = list(big.mark = ','), digits=2)
+
+```
+
+### senato_geo_count
+
+```{r, echo=FALSE,warning=FALSE,message=FALSE}
+tb <-
+  senato_geo_count %>%
+  summarize(registered_voters = sum(registered_voters),
+            effective_voters = sum(effective_voters),
+            `% (effective)` = sum(senato_geo_count$effective_voters) / sum(senato_geo_count$registered_voters) * 100,
+            blank_votes = sum(blank_votes),
+            invalid_votes = sum(invalid_votes), 
+            `% (invalid)` = sum(senato_geo_count$invalid_votes) / sum(senato_geo_count$effective_voters) * 100)
+kable(tb, format.args = list(big.mark = ','), digits=2)
+
+```
+
+
