@@ -21,6 +21,7 @@ url = {https://doi.org/10.7910/DVN/QXUVIG}
 
 The currently available scraping scripts are:
 * `scrape_19460602_F.py`
+* `scrape_20060409.py`
 * `scrape_20161204_F.py`
 * `scrape_20180304.py`
 
@@ -29,6 +30,7 @@ They can be easily applied to scrape different elections but they must be edited
 
 # Data
 * [Italian institutional referendum 2 June 1946](open_details_19460602_F.md)
+* [General Election 9 March 2006](open_details_20060409.md)
 * [Italian constitutional referendum 4 December 2016](open_details_20161204_F.md)
 * [General elections 4 March 2018 (Chamber of Deputy and Senate of the Republic)](open_details_20180304.md)
 
