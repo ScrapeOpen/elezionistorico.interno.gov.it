@@ -9,7 +9,7 @@ was not organised in the provinces of Trieste and Bolzano-Bozen.
 
 # Dataset
 
-* `[open_csv_19460602_F.csv](https://doi.org/10.7910/DVN/QXUVIG/VRUWCC)`
+* `open_csv_19460602_F.csv`([download from Dataverse](https://doi.org/10.7910/DVN/QXUVIG/VRUWCC)).
 
 ## Variable description
 
@@ -36,7 +36,7 @@ was not organised in the provinces of Trieste and Bolzano-Bozen.
 
 ### Variables linking to other resources
 
-* `istat_nam` is the name used by ISTAT in the geographic file `[open_shp_19460602_F](https://doi.org/10.7910/DVN/QXUVIG/XKIXXJ)`.
+* `istat_nam` is the name used by ISTAT in the geographic file `open_shp_19460602_F` ([download from Dataverse](https://doi.org/10.7910/DVN/QXUVIG/XKIXXJ)).
 
 ## Variable summary
 

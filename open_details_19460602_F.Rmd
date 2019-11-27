@@ -10,7 +10,7 @@ The details on variables and decriptive statistics on the results of the 1946 in
 
 # Dataset
 
-* `[open_csv_19460602_F.csv](https://doi.org/10.7910/DVN/QXUVIG/VRUWCC)`
+* `open_csv_19460602_F.csv`([download from Dataverse](https://doi.org/10.7910/DVN/QXUVIG/VRUWCC)).
 
 ```{r, include=F}
 setwd('ScrapeOpen/elezionistorico.interno.gov.it')
@@ -34,7 +34,7 @@ open_csv_19460602_F <- read.csv('open_csv_19460602_F.csv')
 * `invalid_votes` the sum of non-assigned votes (it includes `blank_votes`) in the geographical entity.
 
 ### Variables linking to other resources
-* `istat_nam` is the name used by ISTAT in the geographic file `[open_shp_19460602_F](https://doi.org/10.7910/DVN/QXUVIG/XKIXXJ)`.
+* `istat_nam` is the name used by ISTAT in the geographic file `open_shp_19460602_F` ([download from Dataverse](https://doi.org/10.7910/DVN/QXUVIG/XKIXXJ)).
 
 ## Variable summary
 
