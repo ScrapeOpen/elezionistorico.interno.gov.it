@@ -21,6 +21,7 @@ url = {https://doi.org/10.7910/DVN/QXUVIG}
 
 The currently available scraping scripts are:
 * `scrape_19460602_F.py`
+* `scrape_19480418-19920405.py`
 * `scrape_20060409.py`
 * `scrape_20161204_F.py`
 * `scrape_20180304.py`
