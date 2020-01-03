@@ -56,7 +56,7 @@ getWhatFromFilename <- function(x) {
 
 preprocessString <- function(str) {
   require(stringr)
-  str <- stri_trans_general(str, "Latin-ASCII")
+  str <- stringi::stri_trans_general(str, "Latin-ASCII")
   str <- gsub("[^[:alnum:]]", " ", str)
   str <- tolower(str)
   str <- gsub("j", "i", str)
@@ -215,8 +215,9 @@ liste_dat$geo_lev_2 <-
   gsub("~", "-", liste_dat$geo_lev_2)
 
 
+library(dplyr)
 all_geo_entities <- 
-  unique(liste_dat %>% select(geo_entity, geo_lev_2, date))
+  unique(liste_dat %>% dplyr::select(geo_entity, geo_lev_2, date))
 
 all_geo_entities$geo_lev_2[all_geo_entities$geo_lev_2 %in% c("ABRUZZO","MOLISE")] <- 
   "ABRUZZI E MOLISE"
@@ -224,9 +225,9 @@ all_geo_entities$geo_lev_2[all_geo_entities$geo_lev_2 %in% c("ABRUZZO","MOLISE")
 all_geo_entities <- 
   unique(all_geo_entities)
 
-load("/Users/143852/Downloads/01_place_table.RData") # EDIT THIS
-load("/Users/143852/Downloads/06_hierarchical_setting.RData") # EDIT THIS
-load("/Users/143852/Downloads/04_toponymal_setting.RData") # EDIT THIS
+load("~/Desktop/projects/historical_geographic_entity_database/reboot/01_place_table/01_place_table.RData") # EDIT THIS
+load("~/Desktop/projects/historical_geographic_entity_database/reboot/06_hierarchical_setting/06_hierarchical_setting.RData") # EDIT THIS
+load("~/Desktop/projects/historical_geographic_entity_database/reboot/04_toponymal_setting/04_toponymal_setting.RData") # EDIT THIS
 
 comuni <- 
   place_table[place_table$tmp_type == "<http://www.wikidata.org/entity/Q747074>",]
@@ -284,94 +285,227 @@ for (i in 1:nrow(all_geo_entities)) {
   }
 }
 
+
+# all_geo_entities_bkup <- all_geo_entities # Remove
+
+
 all_geo_entities_temp <- 
   merge(all_geo_entities_temp, 
         all_geo_entities[is.na(all_geo_entities$tmp_id),],
         by = c("geo_entity", "geo_lev_2"))
 
-for (i in 1:nrow(all_geo_entities_temp)) {
+all_toponymal_setting <-
+  toponymal_setting %>% 
+  dplyr::distinct(id, label_it)
+
+for (i in 1:nrow(all_geo_entities)) {
+  
+  if (!is.na(all_geo_entities$tmp_id[i])) {
+    next
+  } 
+  
   print(i)
   
   this_reg <- 
-    comuni_reg_temp[comuni_reg_temp$region == all_geo_entities_temp$geo_lev_2[i] &
-                 (comuni_reg_temp$from_date <= as.Date(all_geo_entities_temp$date[i]) &
-                 (comuni_reg_temp$to_date >= as.Date(all_geo_entities_temp$date[i]) | 
+    comuni_reg_temp[comuni_reg_temp$region == all_geo_entities$geo_lev_2[i] &
+                 (comuni_reg_temp$from_date <= as.Date(all_geo_entities$date[i]) &
+                 (comuni_reg_temp$to_date >= as.Date(all_geo_entities$date[i]) | 
                     is.na(comuni_reg_temp$to_date))),]
   res_i <- 
-    matchGeonames(preprocessString(all_geo_entities_temp$geo_entity[i]),
+    matchGeonames(preprocessString(all_geo_entities$geo_entity[i]),
                   this_reg$tmp_name_prep)
   if (!is.na(res_i)) {
-    all_geo_entities_temp$tmp_id[i] <- this_reg$id[res_i]
+    all_geo_entities$tmp_id[i] <- this_reg$id[res_i]
     next
   }
   
   this_reg <- 
-    comuni_reg_temp[comuni_reg_temp$region == all_geo_entities_temp$geo_lev_2[i],]
+    comuni_reg_temp[comuni_reg_temp$region == all_geo_entities$geo_lev_2[i],]
   res_i <- 
-    matchGeonames(preprocessString(all_geo_entities_temp$geo_entity[i]),
+    matchGeonames(preprocessString(all_geo_entities$geo_entity[i]),
                   this_reg$tmp_name_prep)
   if (!is.na(res_i)) {
-    all_geo_entities_temp$tmp_id[i] <- this_reg$id[res_i]
+    all_geo_entities$tmp_id[i] <- this_reg$id[res_i]
+    next
+  }
+  
+  # Lazio Abruzzo Molise
+  if (all_geo_entities$geo_lev_2[i] %in% c("ABRUZZI E MOLISE", "LAZIO", "UMBRIA")) {
+    this_reg <- 
+      comuni_reg_temp[comuni_reg_temp$region %in% c("ABRUZZI E MOLISE", "LAZIO", "UMBRIA"),]
+    this_reg <-
+      this_reg[!duplicated(this_reg$id),]
+    res_i <- 
+      matchGeonames(preprocessString(all_geo_entities$geo_entity[i]),
+                    this_reg$tmp_name_prep)
+    if (!is.na(res_i)) {
+      all_geo_entities$tmp_id[i] <- this_reg$id[res_i]
+      next
+    }
+  }
+  
+  this_reg <- comuni_reg_temp %>% 
+    dplyr::distinct(id, tmp_name_prep)
+  res_i <- 
+    matchGeonames(preprocessString(all_geo_entities$geo_entity[i]),
+                  this_reg$tmp_name_prep)
+  if (!is.na(res_i)) {
+    all_geo_entities$tmp_id[i] <- this_reg$id[res_i]
+    next
+  }
+  
+  res_i <- 
+    matchGeonames(preprocessString(all_geo_entities$geo_entity[i]),
+                  preprocessString(all_toponymal_setting$label_it))
+  if (!is.na(res_i)) {
+    all_geo_entities$tmp_id[i] <- all_toponymal_setting$id[res_i]
+    next
+  }
+  
+  res_i <- 
+    matchGeonames(preprocessString(all_geo_entities$geo_entity[i]),
+                  preprocessString(comuni$tmp_name))
+  if (!is.na(res_i)) {
+    all_geo_entities$tmp_id[i] <- comuni$id[res_i]
+    next
   }
 }
 
-unique(all_geo_entities_temp$geo_entity[is.na(all_geo_entities_temp$tmp_id)])
+# Manual missing
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "TORELLA DE' LOMBARDI"] <- 
+  "9375"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "CALVI" &
+                          all_geo_entities$geo_lev_2 == "CAMPANIA"] <- 
+  "1561"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "SAN NAZZARO" &
+                          all_geo_entities$geo_lev_2 == "CAMPANIA"] <- 
+  "8162"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "MASSAFISCAGLIA"] <- 
+  "5129"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "MIGLIARO"] <- 
+  "5300"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "BERBENNO"] <- 
+  "911"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "COSTA DI SERINA"] <- 
+  "3209"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "DALMINE"] <- 
+  "3349"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "FILAGO"] <- 
+  "3689"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "MONTELLO"] <- 
+  "5677"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "BRENO"] <- 
+  "1273"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "CASTELVERRINO"] <- 
+  "2389"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "CASTEL MOLA"] <- 
+  "2331"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "MONTICELLO" &
+                          all_geo_entities$geo_lev_2 == "LOMBARDIA"] <- 
+  "5770"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "VIGANO'"] <- 
+  "10064"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "CERRINA" &
+                          all_geo_entities$geo_lev_2 == "PIEMONTE"] <- 
+  "2638"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "SAN REMO"] <- 
+  "8336"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "MASSALUBRENSE"] <- 
+  "5131"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "ACCUMOLI"] <- 
+  "157"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "AMATRICE"] <- 
+  "395"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "ANTRODOCO"] <- 
+  "449"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "BORBONA"] <- 
+  "1106"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "PIGNOLA"] <- 
+  "6754"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "ROCCASECCA"] <- 
+  "7552"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "MONTECOMPATRI"] <- 
+  "5539"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "CIVITACASTELLANA"] <- 
+  "2869"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "SORAGA"] <- 
+  "8985"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "LONGARONE"] <- 
+  "4769"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "SAVOGNA"] <- 
+  "8610"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "CERRETO DELLE LANGHE"] <- 
+  "2637"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "CASTELLO LAVAZZO"] <- 
+  "2271"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "SVELLI"] <- 
+  "9145"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "BANNARI DI USELLUS"] <- 
+  "10160"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "DOMUSDEMARIA"] <- 
+  "3434"	
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "LASPLASSAS"] <- 
+  "4559"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "SAN GIOVINO MONREALE"] <- 
+  "7968"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "MACCHIA VALFORTE"] <- 
+  "4877"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "BORGOCOLLEFEGATO"] <- 
+  "1168"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "SAM GIOVANNI IN MARIGNANO"] <- 
+  "8028"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "BARRUMINI"] <- 
+  "808"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "SANT AGATA FRIUS"] <- 
+  "8452"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "VILLA URBANA"] <- 
+  "10246"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "ESCOLA"] <- 
+  "3538"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "NORAGUS"] <- 
+  "6081"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "SAN GIULIANO IN PUGLIA"] <- 
+  "8043"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "BALABIO"] <- 
+  "722"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "CERRETO LOMELLINO"] <- 
+  "2613"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "BASSANODISUTRI"] <- 
+  "831"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "VANZANO CON S CARLO"] <- 
+  "9858"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "CANALE SAN BOVO"] <- 
+  "1689"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "GARNICA"] <- 
+  "4026"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "VALFIORIANA"] <- 
+  "9757"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "ZIANO" &
+                          all_geo_entities$geo_lev_2 ==  "TRENTINO-ALTO ADIGE"] <- 
+  "10391"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "PASIANO"] <- 
+  "6451"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "MONTICELLI DI BORGOGNA"] <- 
+  "5677"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "SAN VITO LA TORRE"] <- 
+  "8301"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "VILLA VINCENTINA"] <- 
+  "10162"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "CORNI AVOLTRI"] <- 
+  "3821"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "MONTERONE"] <- 
+  "5859"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "ANTRONASCHIERANCO"] <- 
+  "450"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "CASTELLAMMARE"] <- 
+  "2256"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "SANTA MARAI DI ROVAGNATE"] <- 
+  "8387"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "PORTOCIVITANOVA"] <- 
+  "7010"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "RICCHETTA A VOLTURNO"] <- 
+  "7565"
+all_geo_entities$tmp_id[all_geo_entities$geo_entity == "MONACILIOI"] <- 
+  "5422"
 
-[1] "ACCUMOLI"                     "ACQUA DEI CORSARI"            "ACQUASANTA"                  
-[4] "AGORDO"                       "ALANO DI PIAVE"               "ALLEGHE"                     
-[7] "ALTARELLO"                    "AMATRICE"                     "ANTRODOCO"                   
-[10] "ANTRONASCHIERANCO"            "ARSIE'"                       "AURONZO DI CADORE"           
-[13] "BALABIO"                      "BANDITA"                      "BANNARI DI USELLUS"          
-[16] "BARRUMINI"                    "BASSANODISUTRI"               "BASTIA"                      
-[19] "BELLUNO"                      "BOCCADIFALCO"                 "BORBONA"                     
-[22] "BORCA DI CADORE"              "BORGO"                        "BORGO VELINO"                
-[25] "BORGOCOLLEFEGATO"             "BORGOROSE"                    "BRANCACCIO"                  
-[28] "CALALZO DI CADORE"            "CALVI"                        "CANALE SAN BOVO"             
-[31] "CANTALICE"                    "CASTEL MOLA"                  "CASTEL SANT ANGELO"          
-[34] "CASTEL SANT'ANGELO"           "CASTELLAMMARE"                "CASTELLAVAZZO"               
-[37] "CASTELLO LAVAZZO"             "CASTELVERRINO"                "CENCENIGHE AGORDINO"         
-[40] "CENTRISOLO"                   "CENTRO URBANO"                "CERRETO DELLE LANGHE"        
-[43] "CERRETO LOMELLINO"            "CERRINA"                      "CESIOMAGGIORE"               
-[46] "CHIAVELLI"                    "CHIES D'ALPAGO"               "CIACULLI"                    
-[49] "CIBIANA DI CADORE"            "CITTADUCALE"                  "CITTAREALE"                  
-[52] "CIVITACASTELLANA"             "COLLE DI TORA"                "COLLE SANTA LUCIA"           
-[55] "COLLI SUL VELINO"             "COMELICO SUPERIORE"           "CORNI AVOLTRI"               
-[58] "CORTINA D'AMPEZZO"            "CUBA"                         "DANTA"                       
-[61] "DANTA DI CADORE"              "DOMEGGE DI CADORE"            "DOMUSDEMARIA"                
-[64] "DUOMO"                        "ESCOLA"                       "FALCADE"                     
-[67] "FELTRE"                       "FIAMIGNANO"                   "FILANDERIA"                  
-[70] "FONZASO"                      "FORNO DI CANALE"              "FORNO DI ZOLDO"              
-[73] "FRIGNANO"                     "GARNICA"                      "GOSALDO"                     
-[76] "LA VALLE AGORDINA"            "LAMON"                        "LASPLASSAS"                  
-[79] "LENTIAI"                      "LEONESSA"                     "LIMANA"                      
-[82] "LIVINALLONGO DEL COL DI LANA" "LONGARONE"                    "LORENZAGO DI CADORE"         
-[85] "LOZZO DI CADORE"              "MACCHIA VALFORTE"             "MASSAFISCAGLIA"              
-[88] "MASSALUBRENSE"                "MEL"                          "MEZZOMONREALE"               
-[91] "MICIGLIANO"                   "MONACILIOI"                   "MONDELLO"                    
-[94] "MONTE PIETA'"                 "MONTECOMPATRI"                "MONTELLO"                    
-[97] "MONTERONE"                    "MONTICELLI DI BORGOGNA"       "MONTICELLO"                  
-[100] "NORAGUS"                      "ORETO"                        "ORSINI"                      
-[103] "OSPITALE DI CADORE"           "PADERGNAGA ORIANO"            "PAGANICO"                    
-[106] "PALLAVICINO"                  "PASIANO"                      "PEDAVENA"                    
-[109] "PERAROLO DI CADORE"           "PESCOROCCHIANO"               "PETRELLA SALTO"              
-[112] "PIEVE D'ALPAGO"               "PIEVE DI CADORE"              "PIGNOLA"                     
-[115] "PONTE NELLE ALPI"             "PORTOCIVITANOVA"              "POSTA"                       
-[118] "PUOS D'ALPAGO"                "QUERO"                        "RICCHETTA A VOLTURNO"        
-[121] "RIVAMONTE AGORDINO"           "ROCCA PIETORE"                "ROCCASECCA"                  
-[124] "ROMAGNOLO"                    "SAM GIOVANNI IN MARIGNANO"    "SAN GIOVINO MONREALE"        
-[127] "SAN GIULIANO IN PUGLIA"       "SAN GREGORIO NELLE ALPI"      "SAN LORENZO"                 
-[130] "SAN NICOLO' DI COMELICO"      "SAN REMO"                     "SAN TOMASO AGORDINO"         
-[133] "SAN VITO LA TORRE"            "SANT AGATA FRIUS"             "SANTA MARAI DI ROVAGNATE"    
-[136] "SAPPADA"                      "SAVOGNA"                      "SEDICO"                      
-[139] "SELVA DI CADORE"              "SEREN DEL GRAPPA"             "SETTECANNOLI"                
-[142] "SFERRACAVALLO"                "SORAGA"                       "SOSPIROLO"                   
-[145] "SOVERZENE"                    "SOVRAMONTE"                   "SVELLI"                      
-[148] "TAIBON AGORDINO"              "TAMBRE"                       "TERRANUOVA DEI PASSERINI"    
-[151] "TOMMASO NATALE"               "TRIBUNALE"                    "TRIBUNALI"                   
-[154] "TRICHIANA"                    "UDITORE"                      "VALDESI"                     
-[157] "VALFIORIANA"                  "VALLADA AGORDINA"             "VANZANO CON S CARLO"         
-[160] "VAS"                          "VIGANO'"                      "VIGO DI CADORE"              
-[163] "VILLA URBANA"                 "VILLA VERDE"                  "VILLA VINCENTINA"            
-[166] "VILLAGGI"                     "VILLAGRAZIA"                  "VODO CADORE"                 
-[169] "VOLTAGO AGORDINO"             "ZIANO"                        "ZISA"                        
-[172] "ZOLDO ALTO"                   "ZOPPE' DI CADORE"
+unique(all_geo_entities$geo_entity[is.na(all_geo_entities$tmp_id)])
