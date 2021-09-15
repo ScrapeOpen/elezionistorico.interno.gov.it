@@ -117,7 +117,7 @@ open_csv_20080413_camera_geo_count <-
                 date = "2008-04-13",
                 geo_lev_1 = CIRCOSCRIZIONE,
                 geo_lev_2 = PROVINCIA,
-                geo_lev_3 = COMUNE,
+                geo_entity = COMUNE,
                 istat_cod = PRO_COM_T,
                 registered_voters = as.numeric(ELETTORI),
                 registered_male_voters = as.numeric(ELETTORI_MASCHI),
@@ -125,12 +125,12 @@ open_csv_20080413_camera_geo_count <-
                 effective_male_voters = as.numeric(VOTANTI_MASCHI),
                 blank_votes =  as.numeric(SCHEDE_BIANCHE),
                 VOTI_LISTA = VOTI_LISTA_num) %>%
-  dplyr::group_by(election, date, geo_lev_1, geo_lev_2, geo_lev_3,
+  dplyr::group_by(election, date, geo_lev_1, geo_lev_2, geo_entity,
                   istat_cod, 
                   registered_voters, registered_male_voters, 
                   effective_voters, effective_male_voters,
                   blank_votes) %>%
-  dplyr::summarise(party_vot = sum(VOTI_LISTA))
+  dplyr::summarise(tot_party_votes = sum(VOTI_LISTA))
 
 open_csv_20080413_camera_party_count <- 
   camera_italia.20080413 %>%
@@ -138,9 +138,9 @@ open_csv_20080413_camera_party_count <-
                 date = "2008-04-13",
                 geo_lev_1 = CIRCOSCRIZIONE,
                 geo_lev_2 = PROVINCIA,
-                geo_lev_3 = COMUNE,
+                geo_entity = COMUNE,
                 istat_cod = PRO_COM_T,
-                coalition = LISTA,
+                party = LISTA,
                 party_votes = VOTI_LISTA_num) %>%
   dplyr::select(election:party_votes)
 
