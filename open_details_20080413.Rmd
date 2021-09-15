@@ -6,8 +6,6 @@ output:
   rmarkdown::github_document
 ---
 
-read_raw_csv_20080413.R
-
 The details on variables and decriptive statistics on the results of the 2008 elections for the Chamber of Deputies only.
 
 
