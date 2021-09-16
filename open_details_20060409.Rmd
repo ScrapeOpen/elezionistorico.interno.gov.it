@@ -1,7 +1,7 @@
 ---
-title: "General elections 9 April 2006 (Chamber of Deputy and Senate of the Republic)"
+title: "General elections 9 April 2006 (Chamber of Deputy)"
 author: "Francesco Bailo"
-date: "29 January 2019"
+date: "16 September 2o21"
 output: 
   rmarkdown::github_document
 ---
@@ -12,40 +12,39 @@ The details on variables and decriptive statistics on the results of the 2006 el
 
 Count data for geographic entitiy (municipal level or lower) is provided in the following files:
 
-* `open_csv_20060409_senato_geo_count.csv` ([download from Dataverse](https://dataverse.harvard.edu/file.xhtml?fileId=3348677)); 
-* `open_csv_20060409_camera_geo_count.csv` ([download from Dataverse](https://dataverse.harvard.edu/file.xhtml?fileId=3348678));
-* `open_csv_20060409_senato_party_count.csv` ([download from Dataverse](https://dataverse.harvard.edu/file.xhtml?fileId=3348675));
-* `open_csv_20060409_camera_party_count.csv` ([download from Dataverse](https://dataverse.harvard.edu/file.xhtml?fileId=3348674)).
+* `open_csv_20060409_camera_geo_count.csv` ([download from Dataverse](https://dataverse.harvard.edu/file.xhtml?fileId=5152871&version=13.1));
+* `open_csv_20060409_camera_party_count.csv` ([download from Dataverse](https://dataverse.harvard.edu/file.xhtml?fileId=5152872&version=13.1)).
 
-The raw tabular files are also available from [here]([link to Dataverse](https://dataverse.harvard.edu/file.xhtml?fileId=3348676)).
+The raw tabular files are also available from [here](https://dataverse.harvard.edu/file.xhtml?fileId=5152870&version=13.1).
 
 
 ```{r, include=F}
-setwd("~/public_git/ScrapeOpen/elezionistorico.interno.gov.it")
-camera_party_count <- read.csv('open_csv_20060409_camera_party_count.csv')
-camera_geo_count <- read.csv('open_csv_20060409_camera_geo_count.csv')
-
-senato_party_count <- read.csv('open_csv_20060409_senato_party_count.csv')
-senato_geo_count <- read.csv('open_csv_20060409_senato_geo_count.csv')
+camera_geo_count <- read.csv('~/Downloads/open_csv_20060409_camera_geo_count.csv')
+camera_party_count <- read.csv('~/Downloads/open_csv_20060409_camera_party_count.csv')
 ```
 
-For each election, Chamber of Deputies (`camera`) and the Senate of the Republic (`senato`), 2 open datasets are provided: 
+For the Chamber of Deputies (`camera`), 2 open datasets are provided: 
 
-* `party_count` with information on votes received by parties.
-* `geo_count` with general electoral count information on the geographic entity.  
+* `party_count` with information on votes received by parties ("liste" in Italian).
+* `geo_count` with general electoral count information on the geographic entity.
 
 ## Variable description
 
 ### Character variables
-* `election` either `Senato` or `Camera`.
+* `election` set to `Camera`.
 * `date` in format `%Y-%m-%d`.
 * `geo_lev_1` to `geo_lev_2` the label as set by the original data provider for the the electoral boundaries (from larger to smaller) of the geographical entity described by the observation.
 * `geo_entity` name of the geographical entity described by the observation as set by the original data provider.
+* `party` name of the list as set by the original data provider.
+* `istat_cod` code of `geo_entity` as set by [Italy's National Institute of Statistics (Istat)](https://en.wikipedia.org/wiki/National_Institute_of_Statistics_(Italy)) (also `PRO_COM_T`). Use this to join with the geographic files [raw_shp_20060409](https://dataverse.harvard.edu/file.xhtml?fileId=5152869&version=13.1).) 
 
 ### Numerical variables
 * `party_votes` the sum of votes received by a party in the geographical entity.
-* `candidate_votes` the sum of votes received by a candidate (that is, also by a coalition) in the geographical entity.
+* `tot_party_votes` the sum of votes received by all parties in the geographical entity.
 * `registered_voters` the sum of voters registered for the election and entitled to vote in the geographical entity.
+* `registered_male_voters`
+* `effective_voters` the sum of voters actually casting a vote in the election
+* `effective_male_voters`
 * `blank_votes`
 * `invalid_votes` the sum ofnon-assigned votes (it includes `blank_votes`) in the geographical entity.
 
@@ -75,58 +74,19 @@ tb <-
 kable(tb, format.args = list(big.mark = ','), digits=2)
 ```
 
-### senato_party_count
-
-```{r, echo=FALSE,warning=FALSE,message=FALSE}
-library(knitr)
-library(dplyr)
-tb <- 
-  senato_party_count %>%
-  summarize(party_votes = sum(party_votes),
-            `%` = 100)
-kable(tb, format.args = list(big.mark = ','), digits=2)
-```
-
-```{r, echo=FALSE,warning=FALSE,message=FALSE}
-library(knitr)
-library(dplyr)
-tb <- 
-  senato_party_count %>%
-  group_by(party) %>%
-  summarize(party_votes = sum(party_votes),
-            `%` = sum(party_votes) / sum(senato_party_count$party_votes) * 100) %>%
-  arrange(-party_votes)
-kable(tb, format.args = list(big.mark = ','), digits=2)
-```
-
 ### camera_geo_count
 
 ```{r, echo=FALSE,warning=FALSE,message=FALSE}
 tb <-
   camera_geo_count %>%
   summarize(registered_voters = sum(registered_voters),
+            registered_male_voters = sum(registered_male_voters),
             effective_voters = sum(effective_voters),
-            `% (effective)` = sum(camera_geo_count$effective_voters) / sum(camera_geo_count$registered_voters) * 100,
+                        `% (effective)` = sum(camera_geo_count$effective_voters) / sum(camera_geo_count$registered_voters) * 100,
+            effective_male_voters = sum(effective_male_voters),
+            tot_party_votes = sum(tot_party_votes),
             blank_votes = sum(blank_votes),
-            invalid_votes = sum(invalid_votes), 
-            `% (invalid)` = sum(camera_geo_count$invalid_votes) / sum(camera_geo_count$effective_voters) * 100)
+            `% (valid votes)` = sum(tot_party_votes) / sum(effective_voters) * 100)
 kable(tb, format.args = list(big.mark = ','), digits=2)
 
 ```
-
-### senato_geo_count
-
-```{r, echo=FALSE,warning=FALSE,message=FALSE}
-tb <-
-  senato_geo_count %>%
-  summarize(registered_voters = sum(registered_voters),
-            effective_voters = sum(effective_voters),
-            `% (effective)` = sum(senato_geo_count$effective_voters) / sum(senato_geo_count$registered_voters) * 100,
-            blank_votes = sum(blank_votes),
-            invalid_votes = sum(invalid_votes), 
-            `% (invalid)` = sum(senato_geo_count$invalid_votes) / sum(senato_geo_count$effective_voters) * 100)
-kable(tb, format.args = list(big.mark = ','), digits=2)
-
-```
-
-
